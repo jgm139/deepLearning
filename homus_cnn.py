@@ -24,7 +24,7 @@ epochs = 50
 
 # HOMUS contains images of 40 x 40 pixels
 # input image dimensions for train
-img_rows, img_cols = 30, 30
+img_rows, img_cols = 40, 40
 
 # Set image channels order
 K.set_image_data_format('channels_last')
