@@ -62,19 +62,21 @@ def cnn_model(input_shape):
 
     model = Sequential()
 
-    model.add(Conv2D(6, (6, 6), padding='valid', input_shape = input_shape))
+    model.add(Conv2D(12, (2, 2), padding='same', input_shape = input_shape))
     model.add(Activation("relu"))
     model.add(MaxPooling2D(pool_size=(2, 2)))
 
-    model.add(Conv2D(16, (5, 5), padding='valid'))
+    model.add(Conv2D(20, (3, 3), padding='same'))
     model.add(Activation("relu"))
     model.add(MaxPooling2D(pool_size=(2, 2)))
-    model.add(Dropout(0.2))
+    model.add(Dropout(0.1))
 
-    model.add(Conv2D(12, (1,1), padding='valid'))
+    model.add(Conv2D(18, (3, 3), padding='same'))
+    model.add(Activation("relu"))
+    model.add(Conv2D(8, (1,1), padding='same'))
 
     model.add(Flatten())
-    model.add(Dense(512))
+    model.add(Dense(256))
     model.add(Activation("relu"))
     model.add(Dense(nb_classes))
     model.add(Activation('softmax'))
