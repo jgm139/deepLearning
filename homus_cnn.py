@@ -74,7 +74,7 @@ def cnn_model(input_shape):
     model.add(Conv2D(12, (1,1), padding='valid'))
 
     model.add(Flatten())
-    model.add(Dense(1024))
+    model.add(Dense(512))
     model.add(Activation("relu"))
     model.add(Dense(nb_classes))
     model.add(Activation('softmax'))
