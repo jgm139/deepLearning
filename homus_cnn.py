@@ -11,8 +11,9 @@ import glob
 
 from keras.preprocessing.image import ImageDataGenerator, array_to_img, img_to_array, load_img
 from keras.models import Sequential
-from keras.layers import Dense, Dropout, Activation, Flatten, MaxPooling2D
-from keras.layers.convolutional import Conv2D
+from keras.layers import Dense, Dropout, Activation, Flatten, MaxPooling2D, AveragePooling2D
+from keras.layers.convolutional import Conv2D, Conv2DTranspose, Conv1D
+
 from keras.utils import np_utils
 from keras.models import load_model
 from keras.callbacks import EarlyStopping
@@ -21,7 +22,7 @@ from keras import backend as K
 batch_size = 64
 nb_classes = 32
 epochs = 50
-
+n=0
 # HOMUS contains images of 40 x 40 pixels
 # input image dimensions for train
 img_rows, img_cols = 40, 40
@@ -72,12 +73,15 @@ def cnn_model(input_shape):
     model.add(Dropout(0.1))
 
     model.add(Conv2D(18, (3, 3), padding='same'))
+    model.add(MaxPooling2D(pool_size=(2,2)))
     model.add(Activation("relu"))
     model.add(Conv2D(8, (1,1), padding='same'))
-
+    model.add(Conv2DTranspose(6, (2,2), strides=(1, 1), padding='same', data_format=None, activation='relu', use_bias=True, kernel_initializer='glorot_uniform', bias_initializer='zeros', kernel_regularizer=None, bias_regularizer=None, activity_regularizer=None, kernel_constraint=None, bias_constraint=None))
+    model.add(MaxPooling2D(pool_size=(2,2))) 
     model.add(Flatten())
     model.add(Dense(512))
     model.add(Activation("relu"))
+
     model.add(Dense(nb_classes))
     model.add(Activation('softmax'))
 
