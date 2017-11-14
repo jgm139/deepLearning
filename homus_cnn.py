@@ -13,7 +13,6 @@ from keras.preprocessing.image import ImageDataGenerator, array_to_img, img_to_a
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Activation, Flatten, MaxPooling2D, AveragePooling2D
 from keras.layers.convolutional import Conv2D, Conv2DTranspose, Conv1D
-
 from keras.utils import np_utils
 from keras.models import load_model
 from keras.callbacks import EarlyStopping
@@ -62,47 +61,27 @@ def cnn_model(input_shape):
     #
 
     model = Sequential()
-
-    model.add(Conv2D(12, (2, 2), padding='valid', input_shape = input_shape))
-    model.add(Activation("relu"))
-    model.add(Conv2D(16, (2, 2), padding='valid', input_shape = input_shape))
-    model.add(Activation("relu"))
+    model.add(Conv2D(64, (3, 3), input_shape=input_shape))
+    model.add(Activation('relu'))
     model.add(MaxPooling2D(pool_size=(2, 2)))
 
-    model.add(Conv2D(20, (4, 4), padding='valid', input_shape = input_shape))
-    model.add(Activation("relu"))
-    model.add(Conv2D(22, (4, 4), padding='valid', input_shape = input_shape))
-    model.add(Activation("relu"))
-
+    model.add(Conv2D(32, (3, 3)))
+    model.add(Activation('relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
     model.add(Dropout(0.4))
 
-    model.add(Conv2D(20, (2, 2), padding='valid', input_shape = input_shape))
-    model.add(Activation("relu"))
-    model.add(Conv2D(18, (2, 2), padding='valid', input_shape = input_shape))
-    model.add(Activation("relu"))
-
-    model.add(Conv2D(16, (2, 2), padding='valid', input_shape = input_shape))
-    model.add(Activation("relu"))
-    model.add(Conv2D(14, (1, 1), padding='valid', input_shape = input_shape))
-    model.add(Activation("relu"))
+    model.add(Conv2D(64, (3, 3)))
+    model.add(Activation('relu'))
     model.add(MaxPooling2D(pool_size=(2, 2)))
     
-    model.add(Dropout(0.2))  
-    
-    model.add(Conv2D(12, (2, 2), padding='valid', input_shape = input_shape))
-    model.add(Activation("relu"))
-    model.add(Conv2D(10, (2, 2), padding='valid', input_shape = input_shape))
-    model.add(Activation("relu"))
-    model.add(MaxPooling2D(pool_size=(2, 2)))
-
-    model.add(Flatten())
-    model.add(Dense(256))
-    model.add(Activation("relu"))
-
+    model.add(Flatten())  # this converts our 3D feature maps to 1D feature vectors
+    model.add(Dense(516))
+    model.add(Activation('relu'))
     model.add(Dense(nb_classes))
     model.add(Activation('softmax'))
 
     return model
+
 
 
 ##################################################################################
@@ -120,7 +99,7 @@ print(epochs, 'epochs')
 model = cnn_model(input_shape)
 print(model.summary())
 
-model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])#optimizer=rmsprop
 
 early_stopping = EarlyStopping(monitor='loss', patience=3)
 model.fit(X_train, Y_train, batch_size=batch_size, epochs=epochs, verbose=2, validation_data=(X_test, Y_test), callbacks=[early_stopping])
