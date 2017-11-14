@@ -63,23 +63,40 @@ def cnn_model(input_shape):
 
     model = Sequential()
 
-    model.add(Conv2D(12, (2, 2), padding='same', input_shape = input_shape))
+    model.add(Conv2D(12, (2, 2), padding='valid', input_shape = input_shape))
+    model.add(Activation("relu"))
+    model.add(Conv2D(16, (2, 2), padding='valid', input_shape = input_shape))
     model.add(Activation("relu"))
     model.add(MaxPooling2D(pool_size=(2, 2)))
 
-    model.add(Conv2D(20, (3, 3), padding='same'))
+    model.add(Conv2D(20, (4, 4), padding='valid', input_shape = input_shape))
+    model.add(Activation("relu"))
+    model.add(Conv2D(22, (4, 4), padding='valid', input_shape = input_shape))
+    model.add(Activation("relu"))
+
+    model.add(Dropout(0.4))
+
+    model.add(Conv2D(20, (2, 2), padding='valid', input_shape = input_shape))
+    model.add(Activation("relu"))
+    model.add(Conv2D(18, (2, 2), padding='valid', input_shape = input_shape))
+    model.add(Activation("relu"))
+
+    model.add(Conv2D(16, (2, 2), padding='valid', input_shape = input_shape))
+    model.add(Activation("relu"))
+    model.add(Conv2D(14, (1, 1), padding='valid', input_shape = input_shape))
     model.add(Activation("relu"))
     model.add(MaxPooling2D(pool_size=(2, 2)))
-    model.add(Dropout(0.1))
-
-    model.add(Conv2D(18, (3, 3), padding='same'))
-    model.add(MaxPooling2D(pool_size=(2,2)))
+    
+    model.add(Dropout(0.2))  
+    
+    model.add(Conv2D(12, (2, 2), padding='valid', input_shape = input_shape))
     model.add(Activation("relu"))
-    model.add(Conv2D(8, (1,1), padding='same'))
-    model.add(Conv2DTranspose(6, (2,2), strides=(1, 1), padding='same', data_format=None, activation='relu', use_bias=True, kernel_initializer='glorot_uniform', bias_initializer='zeros', kernel_regularizer=None, bias_regularizer=None, activity_regularizer=None, kernel_constraint=None, bias_constraint=None))
-    model.add(MaxPooling2D(pool_size=(2,2))) 
+    model.add(Conv2D(10, (2, 2), padding='valid', input_shape = input_shape))
+    model.add(Activation("relu"))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
+
     model.add(Flatten())
-    model.add(Dense(512))
+    model.add(Dense(256))
     model.add(Activation("relu"))
 
     model.add(Dense(nb_classes))
