@@ -61,8 +61,7 @@ def cnn_model(input_shape):
     #
 
     model = Sequential()
-    model.add(Conv2D(16, (3, 3), input_shape=input_shape))
-    model.add(Conv2D(16, (3, 3)))
+    model.add(Conv2D(64, (3, 3), input_shape=input_shape))
     model.add(Activation('relu'))
     model.add(MaxPooling2D(pool_size=(2, 2)))
 
@@ -100,7 +99,7 @@ print(epochs, 'epochs')
 model = cnn_model(input_shape)
 print(model.summary())
 
-model.compile(loss='categorical_crossentropy', optimizer='nadam', metrics=['accuracy'])#optimizer=rmsprop
+model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])#optimizer=rmsprop
 
 early_stopping = EarlyStopping(monitor='loss', patience=3)
 model.fit(X_train, Y_train, batch_size=batch_size, epochs=epochs, verbose=2, validation_data=(X_test, Y_test), callbacks=[early_stopping])
