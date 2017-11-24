@@ -20,7 +20,7 @@ from keras import backend as K
 
 batch_size = 64
 nb_classes = 32
-epochs = 40
+epochs = 35
 n=0
 # HOMUS contains images of 40 x 40 pixels
 # input image dimensions for train
