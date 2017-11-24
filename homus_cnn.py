@@ -99,7 +99,7 @@ print(epochs, 'epochs')
 model = cnn_model(input_shape)
 print(model.summary())
 
-model.compile(loss='categorical_crossentropy', optimizer='nadam', metrics=['accuracy'])#optimizer=rmsprop
+model.compile(loss='categorical_crossentropy', optimizer='rmsprop', metrics=['accuracy'])#optimizer=rmsprop
 
 early_stopping = EarlyStopping(monitor='loss', patience=3)
 model.fit(X_train, Y_train, batch_size=batch_size, epochs=epochs, verbose=2, validation_data=(X_test, Y_test), callbacks=[early_stopping])
