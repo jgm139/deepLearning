@@ -23,9 +23,6 @@ batch_size = 64
 nb_classes = 32
 epochs = 50
 n=0
-# fix random seed for reproducibility
-seed = 7
-np.random.seed(seed)
 # HOMUS contains images of 40 x 40 pixels
 # input image dimensions for train
 img_rows, img_cols = 40, 40
