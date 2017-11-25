@@ -16,12 +16,16 @@ from keras.layers.convolutional import Conv2D, Conv2DTranspose, Conv1D
 from keras.utils import np_utils
 from keras.models import load_model
 from keras.callbacks import EarlyStopping
+from keras.initializers import RandomUniform
 from keras import backend as K
 
 batch_size = 64
 nb_classes = 32
 epochs = 50
 n=0
+# fix random seed for reproducibility
+seed = 7
+np.random.seed(seed)
 # HOMUS contains images of 40 x 40 pixels
 # input image dimensions for train
 img_rows, img_cols = 40, 40
@@ -73,6 +77,8 @@ def cnn_model(input_shape):
     model.add(Conv2D(64, (3, 3)))
     model.add(Activation('relu'))
     model.add(MaxPooling2D(pool_size=(2, 2)))
+    
+    initializer=RandomUniform(minval=-0.05, maxval=0.05, seed=seed)
     
     model.add(Flatten())  # this converts our 3D feature maps to 1D feature vectors
     model.add(Dense(256))
