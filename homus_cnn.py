@@ -16,7 +16,6 @@ from keras.layers.convolutional import Conv2D, Conv2DTranspose, Conv1D
 from keras.utils import np_utils
 from keras.models import load_model
 from keras.callbacks import EarlyStopping
-from keras.initializers import RandomUniform
 from keras import backend as K
 
 batch_size = 64
@@ -71,11 +70,9 @@ def cnn_model(input_shape):
     model.add(MaxPooling2D(pool_size=(2, 2)))
     model.add(Dropout(0.5))
 
-    #model.add(Conv2D(64, (3, 3)))
-    #model.add(Activation('relu'))
-    #model.add(MaxPooling2D(pool_size=(2, 2)))
-    
-    #initializer=RandomUniform(minval=-0.05, maxval=0.05, seed=seed)
+    model.add(Conv2D(64, (3, 3)))
+    model.add(Activation('relu'))
+    model.add(MaxPooling2D(pool_size=(2, 2)))
     
     model.add(Flatten())  # this converts our 3D feature maps to 1D feature vectors
     model.add(Dense(256))
