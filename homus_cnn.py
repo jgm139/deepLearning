@@ -13,12 +13,13 @@ from keras.preprocessing.image import ImageDataGenerator, array_to_img, img_to_a
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Activation, Flatten, MaxPooling2D, AveragePooling2D
 from keras.layers.convolutional import Conv2D, Conv2DTranspose, Conv1D
+from keras.layers.advanced_activations import LeakyReLU
 from keras.utils import np_utils
 from keras.models import load_model
 from keras.callbacks import EarlyStopping
 from keras import backend as K
 
-batch_size = 128
+batch_size = 64
 nb_classes = 32
 epochs = 50
 n=0
@@ -62,21 +63,25 @@ def cnn_model(input_shape):
 
     model = Sequential()
     model.add(Conv2D(64, (3, 3), input_shape=input_shape))
-    model.add(Activation('relu'))
+    #model.add(Activation('relu'))
+    model.add(LeakyReLU(alpha=.001))
     model.add(MaxPooling2D(pool_size=(2, 2)))
 
     model.add(Conv2D(32, (3, 3)))
-    model.add(Activation('relu'))
+    #model.add(Activation('relu'))
+    model.add(LeakyReLU(alpha=.001))
     model.add(MaxPooling2D(pool_size=(2, 2)))
     model.add(Dropout(0.5))
-
-    model.add(Conv2D(64, (3, 3)))
-    model.add(Activation('relu'))
+    
+    model.add(Conv2D(64, (3, 3), input_shape=input_shape))
+    #model.add(Activation('relu'))
+    model.add(LeakyReLU(alpha=.001))
     model.add(MaxPooling2D(pool_size=(2, 2)))
     
     model.add(Flatten())  # this converts our 3D feature maps to 1D feature vectors
     model.add(Dense(256))
-    model.add(Activation('relu'))
+    #model.add(Activation('relu'))
+    model.add(LeakyReLU(alpha=.001))
     model.add(Dense(nb_classes))
     model.add(Activation('softmax'))
 
@@ -99,7 +104,7 @@ print(epochs, 'epochs')
 model = cnn_model(input_shape)
 print(model.summary())
 
-model.compile(loss='categorical_crossentropy', optimizer='nadam', metrics=['accuracy'])#optimizer=rmsprop
+model.compile(loss='categorical_crossentropy', optimizer='rmsprop', metrics=['accuracy'])#optimizer=rmsprop
 
 early_stopping = EarlyStopping(monitor='loss', patience=3)
 model.fit(X_train, Y_train, batch_size=batch_size, epochs=epochs, verbose=2, validation_data=(X_test, Y_test), callbacks=[early_stopping])
