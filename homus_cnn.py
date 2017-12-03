@@ -10,8 +10,8 @@ import numpy as np
 import glob
 
 from keras.preprocessing.image import ImageDataGenerator, array_to_img, img_to_array, load_img
-from keras.models import Sequential
-from keras.layers import Dense, Dropout, Activation, Flatten, MaxPooling2D
+from keras.models import Sequential, Model
+from keras.layers import Dense, Dropout, Activation, Flatten, MaxPooling2D, Input
 from keras.layers.convolutional import Conv2D
 from keras.layers.advanced_activations import LeakyReLU
 from keras.utils import np_utils
@@ -58,9 +58,6 @@ def load_data():
 
 
 def cnn_model(input_shape):
-    #
-    # LeNet-5: Artificial Neural Network Structure
-    #
 
     inputs = Input(shape=(input_shape))
 
@@ -103,7 +100,7 @@ print(epochs, 'epochs')
 model = cnn_model(input_shape)
 print(model.summary())
 
-model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
+model.compile(loss='categorical_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
 early_stopping = EarlyStopping(monitor='loss', patience=3)
 
 if data_ag:
@@ -112,7 +109,6 @@ if data_ag:
     datagen.fit(X_train)
     model.fit_generator(datagen.flow(X_train, Y_train, batch_size=batch_size), epochs=epochs, verbose=2,
                         steps_per_epoch=batch_size, workers=4, validation_data=(X_test, Y_test))
-    #loss, acc = model.evaluate_generator(datagen.flow(X_test, Y_test), steps=batch_size, workers=4)
 
 else:
     model.fit(X_train, Y_train, batch_size=batch_size, epochs=epochs, verbose=2, validation_data=(X_test, Y_test), callbacks=[early_stopping])   
