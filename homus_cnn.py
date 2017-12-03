@@ -62,29 +62,27 @@ def cnn_model(input_shape):
     # LeNet-5: Artificial Neural Network Structure
     #
 
-    model = Sequential()
-    model.add(Conv2D(64, (3, 3), padding='same', input_shape=input_shape))
-    model.add(LeakyReLU(alpha=.001))
-    model.add(MaxPooling2D(pool_size=(2, 2)))
+    inputs = Input(shape=(input_shape))
 
-    model.add(Conv2D(32, (3, 3), padding='same'))
-    model.add(LeakyReLU(alpha=.001))
-    model.add(MaxPooling2D(pool_size=(2, 2)))
-    
-    model.add(Conv2D(64, (3, 3), padding='same'))
-    model.add(LeakyReLU(alpha=.001))
-    model.add(MaxPooling2D(pool_size=(2, 2)))
-    model.add(Dropout(0.5))
-    
-    model.add(Conv2D(64, (2, 2), padding='same'))
-    model.add(LeakyReLU(alpha=.001))
-    model.add(MaxPooling2D(pool_size=(2, 2)))
-    
-    model.add(Flatten())
-    model.add(Dense(512))
-    model.add(LeakyReLU(alpha=.001))
-    model.add(Dense(nb_classes))
-    model.add(Activation('softmax'))
+    x = Conv2D(64, (3, 3), padding='same')(inputs)
+    x = LeakyReLU(alpha=.001)(x)
+    x = MaxPooling2D(pool_size=(2, 2))(x)
+    x = Conv2D(32, (3, 3), padding='same')(x)
+    x = LeakyReLU(alpha=0.001)(x)
+    x = MaxPooling2D(pool_size=(2, 2))(x)
+    x = Conv2D(64, (3, 3), padding='same')(x)
+    x = LeakyReLU(alpha=.001)(x)
+    x = MaxPooling2D(pool_size=(2, 2))(x)
+    x = Dropout(0.5)(x)
+    x = Conv2D(64, (3, 3), padding='same')(x)
+    x = LeakyReLU(alpha=.001)(x)
+    x = MaxPooling2D(pool_size=(2, 2))(x)
+    x = Flatten()(x)
+    x = Dense(512)(x)
+    x = LeakyReLU(alpha=.001)(x)
+    prediction = Dense(nb_classes, activation='softmax')(x)
+
+    model = Model(inputs=inputs, outputs=prediction)
 
     return model
 
