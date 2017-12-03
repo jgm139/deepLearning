@@ -15,7 +15,7 @@ from keras.layers import Dense, Dropout, Activation, Flatten, MaxPooling2D
 from keras.layers.convolutional import Conv2D
 from keras.layers.advanced_activations import LeakyReLU
 from keras.utils import np_utils
-#from keras.models import load_model
+from sklearn.model_selection import StratifiedKFold
 from keras.callbacks import EarlyStopping
 from keras import backend as K
 
@@ -24,6 +24,8 @@ nb_classes = 32
 epochs = 50
 n=0
 data_ag = True
+seed = 7
+np.random.seed(seed)
 # HOMUS contains images of 40 x 40 pixels
 # input image dimensions for train
 img_rows, img_cols = 40, 40
@@ -102,29 +104,32 @@ print(img_rows, 'x', img_cols, 'image size')
 print(input_shape, 'input_shape')
 print(epochs, 'epochs')
 
-model = cnn_model(input_shape)
-print(model.summary())
-
-model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
-early_stopping = EarlyStopping(monitor='loss', patience=3)
-
-if data_ag:
-    print("Using ImageDataGenerator")
-    datagen = ImageDataGenerator(rotation_range=15, width_shift_range=0.15, height_shift_range=0.15, horizontal_flip=False, vertical_flip=False)
-    datagen.fit(X_train)
-    model.fit_generator(datagen.flow(X_train, Y_train, batch_size=batch_size), epochs=epochs, verbose=2,
-                        steps_per_epoch=batch_size, workers=4, validation_data=(X_test, Y_test))
-    #loss, acc = model.evaluate_generator(datagen.flow(X_test, Y_test), steps=batch_size, workers=4)
-
-else:
-    model.fit(X_train, Y_train, batch_size=batch_size, epochs=epochs, verbose=2, validation_data=(X_test, Y_test), callbacks=[early_stopping])   
-                
-#_
-# Results
-#
-loss, acc = model.evaluate(X_test, Y_test, verbose=0)    
-print('Test score:{:.2f} accuracy: {:.2f}%'.format(loss, acc*100))
-
+cvscores = []
+for i in range(10):
+    model = cnn_model(input_shape)
+    print(model.summary())
+    
+    model.compile(loss='categorical_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
+    early_stopping = EarlyStopping(monitor='loss', patience=3)
+    
+    if data_ag:
+        print("Using ImageDataGenerator")
+        datagen = ImageDataGenerator(rotation_range=15, width_shift_range=0.15, height_shift_range=0.15, horizontal_flip=False, vertical_flip=False)
+        datagen.fit(X_train)
+        model.fit_generator(datagen.flow(X_train, Y_train, batch_size=batch_size), epochs=epochs, verbose=2,
+                            steps_per_epoch=batch_size, workers=4, validation_data=(X_test, Y_test))
+    
+    else:
+        model.fit(X_train, Y_train, batch_size=batch_size, epochs=epochs, verbose=2, validation_data=(X_test, Y_test), callbacks=[early_stopping])   
+    #_
+    # Results
+    #
+    loss, acc = model.evaluate(X_test, Y_test, verbose=0)    
+    print('Test score:{:.2f} accuracy: {:.2f}%'.format(loss, acc*100))
+    cvscores.append(acc * 100)
+    model = None
+    
+print("%.2f%% (+/- %.2f%%)" % (np.mean(cvscores), np.std(cvscores)))
 
 #Save the model
 # serialize model to JSON
