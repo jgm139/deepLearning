@@ -10,12 +10,12 @@ import numpy as np
 import glob
 
 from keras.preprocessing.image import ImageDataGenerator, array_to_img, img_to_array, load_img
-from keras.models import Sequential
-from keras.layers import Dense, Dropout, Activation, Flatten, MaxPooling2D
+from keras.models import Sequential, Model
+from keras.layers import Dense, Dropout, Activation, Flatten, MaxPooling2D, Input, GaussianNoise
 from keras.layers.convolutional import Conv2D
 from keras.layers.advanced_activations import LeakyReLU
 from keras.utils import np_utils
-from sklearn.model_selection import StratifiedKFold
+#from keras.models import load_model
 from keras.callbacks import EarlyStopping
 from keras import backend as K
 
@@ -24,8 +24,6 @@ nb_classes = 32
 epochs = 50
 n=0
 data_ag = True
-seed = 7
-np.random.seed(seed)
 # HOMUS contains images of 40 x 40 pixels
 # input image dimensions for train
 img_rows, img_cols = 40, 40
@@ -60,33 +58,33 @@ def load_data():
 
 
 def cnn_model(input_shape):
-    #
-    # LeNet-5: Artificial Neural Network Structure
-    #
 
-    model = Sequential()
-    model.add(Conv2D(64, (3, 3), padding='same', input_shape=input_shape))
-    model.add(LeakyReLU(alpha=.001))
-    model.add(MaxPooling2D(pool_size=(2, 2)))
+    inputs = Input(shape=(input_shape))
 
-    model.add(Conv2D(32, (3, 3), padding='same'))
-    model.add(LeakyReLU(alpha=.001))
-    model.add(MaxPooling2D(pool_size=(2, 2)))
+    x = Conv2D(64, (3, 3), padding='same')(inputs)
+    x = LeakyReLU(alpha=.001)(x)
+    x = MaxPooling2D(pool_size=(2, 2))(x)
+    x = GaussianNoise(0.2)(x)
     
-    model.add(Conv2D(64, (3, 3), padding='same'))
-    model.add(LeakyReLU(alpha=.001))
-    model.add(MaxPooling2D(pool_size=(2, 2)))
-    model.add(Dropout(0.5))
+    x = Conv2D(32, (3, 3), padding='same')(x)
+    x = LeakyReLU(alpha=0.001)(x)
+    x = MaxPooling2D(pool_size=(2, 2))(x)
     
-    model.add(Conv2D(64, (2, 2), padding='same'))
-    model.add(LeakyReLU(alpha=.001))
-    model.add(MaxPooling2D(pool_size=(2, 2)))
+    x = Conv2D(64, (3, 3), padding='same')(x)
+    x = LeakyReLU(alpha=.001)(x)
+    x = MaxPooling2D(pool_size=(2, 2))(x)
+    x = Dropout(0.5)(x)
     
-    model.add(Flatten())
-    model.add(Dense(512))
-    model.add(LeakyReLU(alpha=.001))
-    model.add(Dense(nb_classes))
-    model.add(Activation('softmax'))
+    x = Conv2D(64, (2, 2), padding='same')(x)
+    x = LeakyReLU(alpha=.001)(x)
+    x = MaxPooling2D(pool_size=(2, 2))(x)
+    
+    x = Flatten()(x)
+    x = Dense(512)(x)
+    x = LeakyReLU(alpha=.001)(x)
+    prediction = Dense(nb_classes, activation='softmax')(x)
+
+    model = Model(inputs=inputs, outputs=prediction)
 
     return model
 
@@ -104,32 +102,28 @@ print(img_rows, 'x', img_cols, 'image size')
 print(input_shape, 'input_shape')
 print(epochs, 'epochs')
 
-cvscores = []
-for i in range(10):
-    model = cnn_model(input_shape)
-    print(model.summary())
-    
-    model.compile(loss='categorical_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
-    early_stopping = EarlyStopping(monitor='loss', patience=3)
-    
-    if data_ag:
-        print("Using ImageDataGenerator")
-        datagen = ImageDataGenerator(rotation_range=15, width_shift_range=0.15, height_shift_range=0.15, horizontal_flip=False, vertical_flip=False)
-        datagen.fit(X_train)
-        model.fit_generator(datagen.flow(X_train, Y_train, batch_size=batch_size), epochs=epochs, verbose=2,
-                            steps_per_epoch=batch_size, workers=4, validation_data=(X_test, Y_test))
-    
-    else:
-        model.fit(X_train, Y_train, batch_size=batch_size, epochs=epochs, verbose=2, validation_data=(X_test, Y_test), callbacks=[early_stopping])   
-    #_
-    # Results
-    #
-    loss, acc = model.evaluate(X_test, Y_test, verbose=0)    
-    print('Test score:{:.2f} accuracy: {:.2f}%'.format(loss, acc*100))
-    cvscores.append(acc * 100)
-    model = None
-    
-print("%.2f%% (+/- %.2f%%)" % (np.mean(cvscores), np.std(cvscores)))
+model = cnn_model(input_shape)
+print(model.summary())
+
+model.compile(loss='categorical_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
+early_stopping = EarlyStopping(monitor='loss', patience=3)
+
+if data_ag:
+    print("Using ImageDataGenerator")
+    datagen = ImageDataGenerator(rotation_range=16, width_shift_range=0.16, height_shift_range=0.16, horizontal_flip=False, vertical_flip=False)
+    datagen.fit(X_train)
+    model.fit_generator(datagen.flow(X_train, Y_train, batch_size=batch_size), epochs=epochs, verbose=2,
+                        steps_per_epoch=batch_size, workers=4, validation_data=(X_test, Y_test))
+
+else:
+    model.fit(X_train, Y_train, batch_size=batch_size, epochs=epochs, verbose=2, validation_data=(X_test, Y_test), callbacks=[early_stopping])   
+                
+#_
+# Results
+#
+loss, acc = model.evaluate(X_test, Y_test, verbose=0)    
+print('Test score:{:.2f} accuracy: {:.2f}%'.format(loss, acc*100))
+
 
 #Save the model
 # serialize model to JSON

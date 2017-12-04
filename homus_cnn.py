@@ -11,6 +11,7 @@ import glob
 
 from keras.preprocessing.image import ImageDataGenerator, array_to_img, img_to_array, load_img
 from keras.models import Sequential, Model
+from keras import optimizers
 from keras.layers import Dense, Dropout, Activation, Flatten, MaxPooling2D, Input
 from keras.layers.convolutional import Conv2D
 from keras.layers.advanced_activations import LeakyReLU
@@ -64,16 +65,20 @@ def cnn_model(input_shape):
     x = Conv2D(64, (3, 3), padding='same')(inputs)
     x = LeakyReLU(alpha=.001)(x)
     x = MaxPooling2D(pool_size=(2, 2))(x)
+    
     x = Conv2D(32, (3, 3), padding='same')(x)
     x = LeakyReLU(alpha=0.001)(x)
     x = MaxPooling2D(pool_size=(2, 2))(x)
+    
     x = Conv2D(64, (3, 3), padding='same')(x)
     x = LeakyReLU(alpha=.001)(x)
     x = MaxPooling2D(pool_size=(2, 2))(x)
     x = Dropout(0.5)(x)
-    x = Conv2D(64, (3, 3), padding='same')(x)
+    
+    x = Conv2D(64, (2, 2), padding='same')(x)
     x = LeakyReLU(alpha=.001)(x)
     x = MaxPooling2D(pool_size=(2, 2))(x)
+    
     x = Flatten()(x)
     x = Dense(512)(x)
     x = LeakyReLU(alpha=.001)(x)
@@ -105,7 +110,7 @@ early_stopping = EarlyStopping(monitor='loss', patience=3)
 
 if data_ag:
     print("Using ImageDataGenerator")
-    datagen = ImageDataGenerator(rotation_range=15, width_shift_range=0.15, height_shift_range=0.15, horizontal_flip=False, vertical_flip=False)
+    datagen = ImageDataGenerator(rotation_range=16, width_shift_range=0.16, height_shift_range=0.16, horizontal_flip=False, vertical_flip=False)
     datagen.fit(X_train)
     model.fit_generator(datagen.flow(X_train, Y_train, batch_size=batch_size), epochs=epochs, verbose=2,
                         steps_per_epoch=batch_size, workers=4, validation_data=(X_test, Y_test))
